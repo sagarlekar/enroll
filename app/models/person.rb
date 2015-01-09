@@ -30,7 +30,8 @@ class Person
 
   field :is_active, type: Boolean, default: true
   field :updated_by, type: String
-
+  field :subscriber_type, type: String
+  
   # Login account
   has_one :user, as: :profile, dependent: :destroy
 
@@ -166,6 +167,31 @@ class Person
     return(true) if associated_ids.length < 2
     Person.find(associated_ids).combination(2).all? do |addr_set|
       addr_set.first.addresses_match?(addr_set.last)
+    end
+  end
+  
+  def subscriber
+    abs_subscriber = nil
+    case self.subscriber_type
+    when "employee"
+      abs_subscriber = self.employee
+    when "broker"
+      abs_subscriber =  self.broker
+    when "consumer"
+      abs_subscriber =  self.consumer
+    end
+    return abs_subscriber
+  end
+  
+  def subscriber=(subscriber_hash)
+    abs_subscriber = nil
+    case self.subscriber_type
+    when "employee"
+      self.employee.build(subscriber_hash)
+    when "broker" 
+      self.broker.build(subscriber_hash)
+    when "consumer"
+      self.consumer.build(subscriber_hash)
     end
   end
 
