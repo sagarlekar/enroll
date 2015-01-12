@@ -187,12 +187,13 @@ class Person
     abs_subscriber = nil
     case self.subscriber_type
     when "employee"
-      self.employee.build(subscriber_hash)
+      self.employee = subscriber_hash
     when "broker" 
-      self.broker.build(subscriber_hash)
+      self.broker = subscriber_hash
     when "consumer"
-      self.consumer.build(subscriber_hash)
+      self.consumer = subscriber_hash
     end
+    
   end
 
   def is_active?
@@ -201,7 +202,7 @@ class Person
 
 private
   def initialize_name_full
-    self.name_full = full_name
+    #self.name_full = full_name
   end
 
   def date_of_death_follows_birth_date
