@@ -207,7 +207,7 @@ private
 
   def date_of_death_follows_birth_date
     return if date_of_death.nil? || dob.nil?
-    errors.add(:date_of_death, "date_of_death cannot preceed dob") if date_of_death < dob
+    errors.add(:date_of_death, "date_of_death cannot precede dob") if date_of_death < dob
   end
 
   def dob_string
