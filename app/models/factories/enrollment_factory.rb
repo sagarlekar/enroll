@@ -207,7 +207,6 @@ class EnrollmentFactory
       gender: relative.gender,
       employee_relationship: relationship.kind
     )
-    byebug
   end
 
   def self.save_all_or_delete_new(*list)
