@@ -6,11 +6,7 @@
 			  <%= render 'shared/employer', organization: organization,employee: employee.census_employee %>
 		  </div>
       <div class="col-md-2 col-sm-2 col-xs-2">
-        <% if employee.census_dependents.present? %>
-          <% url = dependent_details_people_path(person_id: @person.id, organization_id: organization.id) %>
-        <% else %>
-          <% url = plan_details_people_path(person_id: @person.id, organization_id: organization.id) %>
-        <% end %>
+        <% url = dependent_details_people_path(person_id: @person.id, organization_id: organization.id) %>
         
         <input type="hidden" data-url="<%= url %>" class="badge">
         <!-- <span id="badge" data-url="<%= url %>"  class="badge" style="cursor:pointer"><i></i></span> -->

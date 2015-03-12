@@ -92,7 +92,7 @@ class PeopleController < ApplicationController
     employer_census_family = @employer_profile.linkable_employee_family_by_person(@person)
 
     #calling add_employee_role when linkable employee family present
-    if employer_census_family.present? && employer_census_family.person.present?
+    if employer_census_family.present? && employer_census_family.census_employee.present?
       enroll_parms = {}
       enroll_parms[:user] = current_user
       enroll_parms[:employer_profile] = @employer_profile
@@ -198,7 +198,7 @@ class PeopleController < ApplicationController
     @person = Person.new(person_params)
     respond_to do |format|
       if @person.save
-        format.html { redirect_to @person, notice: 'Person was successfully created.' }
+        format.html { render :action => :dependent_details, notice: 'Person was successfully created.' }
         format.json { render json: @person, status: :created, location: @person }
       else
         build_nested_models
