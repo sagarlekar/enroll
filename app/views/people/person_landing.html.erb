@@ -101,24 +101,41 @@
                       </div>
                       <div class="col-md-6 col-sm-6 col-xs-12 right-side">
                         <p class="head">
-                          <span>Household</span>
-                          <span>add members</span>
+                          <span>Life Events</span>
+                          <span></span>
                         </p>
-                        <ul class="list-group">
-                          <% @employee.employee_family.census_dependents.each do |dependent| %>
-                            <li class="list-group-item">
+                         <ul class="list-group">
+                          <li class="list-group-item">
                             <div class="row">
-                              <div class="col-md-10 col-sm-8 col-xs-8">
-                                  <h4><h4> <%= dependent.first_name %> <%= dependent.last_name %> </h4> </h4>
+                              <div class="col-md-8 col-sm-8 col-xs-12">
+                                <h4>I've just married</h4>
                               </div>
-                              <div class="col-md-2 col-sm-4 col-xs-4 text-right">
-                                <a href="#"><%= image_tag 'edit.png' %></a>
-                                <a href="#"><%= image_tag 'member-close.png' %></a>
+                              <div class="col-md-4 col-sm-4 col-xs-12 text-right">
+                                <a href="#">add a new family member</a>
                               </div>
                             </div>
                           </li>
-                          <% end %>
-                          <button class="btn btn-see-all">See All</button>
+                          <li class="list-group-item">
+                            <div class="row">
+                              <div class="col-md-8 col-sm-8 col-xs-12">
+                                <h4>I've just entered a legal domestic parnership</h4>
+                              </div>
+                              <div class="col-md-4 col-sm-4 col-xs-12 text-right">
+                                <a href="#">add a new family member</a>
+                              </div>
+                            </div>
+                          </li>
+                          <li class="list-group-item">
+                            <div class="row">
+                              <div class="col-md-8 col-sm-8 col-xs-12">
+                                <h4>I've had a child</h4>
+                              </div>
+                              <div class="col-md-4 col-sm-4 col-xs-12 text-right">
+                                <a href="#">add new emloyer plan</a>
+                              </div>
+                            </div>
+                          </li>
+                         <button class="btn btn-see-all md-trigger" data-modal="modal-3">See All</button>
                         </ul>
                       </div>
                       <div class="cleafix"></div>
@@ -164,41 +181,24 @@
                       </div>
                       <div class="col-md-6 col-sm-6 col-xs-12 right-side">
                         <p class="head">
-                          <span>Life Events</span>
-                          <span></span>
+                          <span>Household</span>
+                          <span>add members</span>
                         </p>
-                         <ul class="list-group">
-                          <li class="list-group-item">
+                        <ul class="list-group">
+                          <% @employee.employee_family.census_dependents.each do |dependent| %>
+                            <li class="list-group-item">
                             <div class="row">
-                              <div class="col-md-8 col-sm-8 col-xs-12">
-                                <h4>I've just married</h4>
+                              <div class="col-md-10 col-sm-8 col-xs-8">
+                                  <h4><h4> <%= dependent.first_name %> <%= dependent.last_name %> </h4> </h4>
                               </div>
-                              <div class="col-md-4 col-sm-4 col-xs-12 text-right">
-                                <a href="#">add a new family member</a>
+                              <div class="col-md-2 col-sm-4 col-xs-4 text-right">
+                                <a href="#"><%= image_tag 'edit.png' %></a>
+                                <a href="#"><%= image_tag 'member-close.png' %></a>
                               </div>
                             </div>
                           </li>
-                          <li class="list-group-item">
-                            <div class="row">
-                              <div class="col-md-8 col-sm-8 col-xs-12">
-                                <h4>I've just entered a legal domestic parnership</h4>
-                              </div>
-                              <div class="col-md-4 col-sm-4 col-xs-12 text-right">
-                                <a href="#">add a new family member</a>
-                              </div>
-                            </div>
-                          </li>
-                          <li class="list-group-item">
-                            <div class="row">
-                              <div class="col-md-8 col-sm-8 col-xs-12">
-                                <h4>I've had a child</h4>
-                              </div>
-                              <div class="col-md-4 col-sm-4 col-xs-12 text-right">
-                                <a href="#">add new emloyer plan</a>
-                              </div>
-                            </div>
-                          </li>
-                         <button class="btn btn-see-all md-trigger" data-modal="modal-3">See All</button>
+                          <% end %>
+                          <button class="btn btn-see-all">See All</button>
                         </ul>
                       </div>
                       <div class="cleafix"></div>
