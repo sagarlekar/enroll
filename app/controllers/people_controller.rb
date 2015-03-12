@@ -44,10 +44,13 @@ class PeopleController < ApplicationController
   end
   
   def link_employer
+    add_employee_role
+    @organization = @employer_profile.organization
+    @employee = @organization.employee_family_details(@person)
   end
   
   def get_employer
-    @person = Person.find(params[:id])
+    @person = Person.new(person_params)
     @employer_profile= EmployerProfile.find_employer_profiles_by_person(@person).first
     
     respond_to do |format|
@@ -76,23 +79,19 @@ class PeopleController < ApplicationController
   end
   
   def dependent_details
-    add_employee_role
-    @employer_profile = @employee_role.employer_profile
-    @employer = @employer_profile.organization
-    @person = @employee_role.person
-    @employee = @employer_profile.find_employee_by_person(@person)
-    # employee_family = Organization.find(@employer.id).employee_family_details(@person)
-    # @employee = employee_family.census_employee
-    # build_nested_models
+   @person = Person.find(params[:person_id])
+   @employer = Organization.find(params[:organization_id])
+   @employee = @employer.employee_family_details(@person).census_employee
+   @employer_profile = @employer.employer_profile    
   end
   
   def add_employee_role
-    @person = Person.find(params[:person_id])
+    @person = Person.new(person_params)
     @employer_profile = Organization.find(params[:organization_id]).employer_profile    
     employer_census_family = @employer_profile.linkable_employee_family_by_person(@person)
 
     #calling add_employee_role when linkable employee family present
-    if employer_census_family.present? && employer_census_family.person.present?
+    if employer_census_family.present?
       enroll_parms = {}
       enroll_parms[:user] = current_user
       enroll_parms[:employer_profile] = @employer_profile
@@ -106,6 +105,8 @@ class PeopleController < ApplicationController
       enroll_parms[:hired_on] = params[:hired_on]
 
       @employee_role, @family = EnrollmentFactory.add_employee_role(enroll_parms)
+      @employee_role.person.save!
+      @person = @employee_role.person
     else
       @employee_role = @person.employee_roles.first
     end

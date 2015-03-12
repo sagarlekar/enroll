@@ -1,0 +1,5 @@
+<% if @employee.census_dependents.present? %>
+window.location.href = "dependent_details?person_id=<%= @person.id%>&organization_id=<%= @organization.id %>"
+<% else %>
+window.location.href = "plan_details?person_id=<%= @person.id%>&organization_id=<%= @organization.id %>"
+<% end %>

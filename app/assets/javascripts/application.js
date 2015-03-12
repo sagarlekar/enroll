@@ -82,35 +82,39 @@ $(document).ready(function () {
       $('#personal_sidebar').addClass('hidden');
       $('#search_sidebar').removeClass('hidden');
       $('.employers-row').html("");
-      $.ajax({
-        type: "POST",
-        url: "/people/match_person.json",
-        data: $('#new_person').serialize(),
-        success: function (result) {
-          // result.person gives person info to populate
-          if(result.matched == true)
-          {
-            person = result.person
-            $("#people_id").val(person._id);
-            _getEmployers();
-            
-            $('#key-section').removeClass('hidden');
-            $('#house_info, #add_info, #top-pad30, #top-pad80, #top-pad85').hide();
-            $('a.one, a.two').css("color", "#00b22d");
-          }
-          else
-          {
-            $('.search_results').removeClass('hidden');
-            $('.employers-row').html("");
-            $('.fail-search').removeClass('hidden');
-          }
-
-          //Sidebar Switch - Search Active
-          $('#personal_sidebar').removeClass('hidden');
-          $('#search_sidebar').addClass('hidden');
-          $(".overlay-in").css("display", "block");
-        }
-      });  
+      _getEmployers();
+      $('#personal_sidebar').removeClass('hidden');
+      $('#search_sidebar').addClass('hidden');
+      $(".overlay-in").css("display", "block");
+      // $.ajax({
+      //   type: "POST",
+      //   url: "/people/match_person.json",
+      //   data: $('#new_person').serialize(),
+      //   success: function (result) {
+      //     // result.person gives person info to populate
+      //     if(result.matched == true)
+      //     {
+      //       person = result.person
+      //       $("#people_id").val(person._id);
+      //       _getEmployers();
+      //       
+      //       $('#key-section').removeClass('hidden');
+      //       $('#house_info, #add_info, #top-pad30, #top-pad80, #top-pad85').hide();
+      //       $('a.one, a.two').css("color", "#00b22d");
+      //     }
+      //     else
+      //     {
+      //       $('.search_results').removeClass('hidden');
+      //       $('.employers-row').html("");
+      //       $('.fail-search').removeClass('hidden');
+      //     }
+      // 
+      //     //Sidebar Switch - Search Active
+      //     $('#personal_sidebar').removeClass('hidden');
+      //     $('#search_sidebar').addClass('hidden');
+      //     $(".overlay-in").css("display", "block");
+      //   }
+      // });  
     } else {
       alert("Enter all data");
     }
@@ -127,27 +131,26 @@ $(document).ready(function () {
     $('.search_alert_msg').removeClass('hidden');
     $('.searching_span').text('Searching');
     $('.search_alert_msg').addClass('hidden');
+    
     getAllEmployers();
 
-    $('.search-btn-row').addClass('hidden');
-    $('.employer_info').removeClass('hidden');
-    $('#employer-info').removeClass('hidden');
     
-    $('#address_info').removeClass('hidden');
-    $('.address_info').removeClass('hidden');
-    $('#phone_info').removeClass('hidden');
-    $('.phone_info').removeClass('hidden');
-    $('#email_info').removeClass('hidden');
-    $('.email_info').removeClass('hidden');
-    $('.search_continue').removeClass('hidden');
   }
   
   function getAllEmployers()
   {
     $.ajax({
-      type: "GET",
-      data:{id: $("#people_id").val()},
+      type: "POST",
+      data: $('#new_person').serialize(),
       url: "/people/get_employer.js"
+    });
+  }
+  function linkEmpoyer()
+  {
+    $.ajax({
+      type: "POST",
+      data: $('#new_person').serialize(),
+      url: "/people/link_employer.js"
     });
   }
 

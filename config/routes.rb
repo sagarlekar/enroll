@@ -30,7 +30,8 @@ Rails.application.routes.draw do
     collection do
       get 'plans_converson'
       post 'match_person'
-      get 'get_employer'
+      post 'link_employer'
+      post 'get_employer'
       post 'person_confirm'
       post 'person_landing'
       get 'person_landing'
@@ -39,6 +40,7 @@ Rails.application.routes.draw do
       post 'add_dependents'
       get 'dependent_details'
       post 'save_dependents'
+      get 'plan_details'
       delete 'remove_dependents'
     end
     
