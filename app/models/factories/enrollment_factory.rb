@@ -112,7 +112,7 @@ class EnrollmentFactory
     # person.person_relationships << PersonRelationhip.new()
 
     family, primary_applicant = self.initialize_family(person, employer_census_family.census_dependents)
-    # TODO: create extra family stuff if in census
+    self.update_census_from_family(person, employer_census_family)
 
     saved = save_all_or_delete_new(family, primary_applicant, role)
     if saved
@@ -183,6 +183,31 @@ class EnrollmentFactory
     else
       # what am I doing here?  The same person was in the family twice?
     end
+  end
+
+  def self.update_census_from_family(employee_person, employer_census_family)
+    if employee_person.person_relationships.count > 0
+      employer_census_family.census_dependents = []
+      employee_person.person_relationships.each do |relationship|
+        update_census_from_relationship(relationship, employer_census_family)
+      end
+      employer_census_family.save
+    end
+  end
+
+  def self.update_census_from_relationship(relationship, employer_census_family)
+    relative = relationship.relative
+    employer_census_family.census_dependents.build(
+      first_name: relative.first_name,
+      middle_name: relative.middle_name,
+      last_name: relative.last_name,
+      name_sfx: relative.name_sfx,
+      ssn: relative.ssn,
+      dob: relative.dob,
+      gender: relative.gender,
+      employee_relationship: relationship.kind
+    )
+    byebug
   end
 
   def self.save_all_or_delete_new(*list)
