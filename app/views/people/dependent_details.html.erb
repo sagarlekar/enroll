@@ -83,8 +83,9 @@
             <div class="col-md-6 col-sm-3 col-xs-6 form-group form-group-lg no-pd">
               <label>Phone</label>
             </div>
-          </div>
-          <% address = @employee.address %>
+    </div>
+    <% if @employee.address %>
+	    <% address = @employee.address %>
           <div class="row middle-row form-group form-group-lg no-pd address-row">
             <div class="col-md-6 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
               <label>Address</label>
@@ -94,7 +95,7 @@
               <label>Address2</label>
               <input type="text" value="<%= address.address_2 %>" class="form-control" >
             </div>
-          </div>
+    </div>
           
               <div class="row middle-row form-group form-group-lg no-pd address-row">
             <div class="col-md-6 col-sm-3 col-xs-12 form-group form-group-lg no-pd">
@@ -109,11 +110,12 @@
               <input type="text" value="<%= address.zip %>" class="form-control" >
             </div>
           </div>
-        </div>
+  <% end %>
+  </div>
       </div>
-      
       <div class="col-md-10 col-sm-12">
       	<div class="col-md-11 col-sm-12 col-xs-12">
+		<!--
       		<p class="information row">Household Information</p>
       		
       		<div id="household_info" class="focus_effect row personaol-info-row" style="opacity: 0.5;">
@@ -125,11 +127,11 @@
 				  <div class="col-md-6 col-sm-6 no-pd form-group form-group-lg no-pd">
 				    <%= text_field_tag :relation, "", class: "floatlabel form-control", placeholder: 'RELATION' %>
 				  </div>
-				</div>
+	         </div>
               </div>
             </div><br>
-            
-            <div class="fail-search add-member <%= 'hidden' if !@employee.employee_family.census_dependents.empty? %>" class="row">
+	    --> 
+            <div class="fail-search add-member" class="row">
 	            <div class="col-md-10 col-sm-9 col-xs-12 no-pd">
 	              <div class="panel panel-default">
 	                <div class="panel-body member">

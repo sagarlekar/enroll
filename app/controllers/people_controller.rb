@@ -153,8 +153,10 @@ class PeopleController < ApplicationController
     @employer = Organization.find(params[:organization_id])
     employee_family = Organization.find(@employer.id).employee_family_details(@person)
     @dependent = employee_family.census_dependents.where(id: params[:id]).first
-    @family_member_id = @dependent.id
-    @dependent.destroy
+    if @dependent
+      @family_member_id = @dependent.id
+      @dependent.destroy
+    end
     respond_to do |format|
       format.js { flash.now[:notice] = "Family Member Removed" } 
     end
