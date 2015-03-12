@@ -141,7 +141,7 @@
 		                  <% add_member_url = add_dependents_people_path(person_id: params[:person_id], organization_id: params[:organization_id], employee_id: @employee.id) %>
 						  <%= link_to "Add Member", add_member_url, method: :post, class: 'btn btn-blue add_member', :remote => true %>
 		                  &nbsp; &nbsp;
-		                  <a class="text-center btn btn-save">Continue</a>
+				  <a class="text-center btn btn-save" href="<%= plan_details_people_path(person_id: params[:person_id], organization_id: params[:organization_id]) %>">Continue</a>
 		                </center>
 	                </div>
 	              </div>

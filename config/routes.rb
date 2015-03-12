@@ -27,6 +27,9 @@ Rails.application.routes.draw do
   resources :people do
     get 'select_employer'
     get 'my_account'
+    member do
+      post 'update' => 'people#update'
+    end
     collection do
       get 'plans_converson'
       post 'match_person'
@@ -34,6 +37,7 @@ Rails.application.routes.draw do
       post 'person_confirm'
       post 'person_landing'
       get 'person_landing'
+      get 'plan_details'
       post 'plan_details'
       post 'dependent_details'
       post 'add_dependents'
