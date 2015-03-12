@@ -6,14 +6,8 @@
 			  <%= render 'shared/employer', organization: organization,employee: employee.census_employee %>
 		  </div>
       <div class="col-md-2 col-sm-2 col-xs-2">
-        <% if employee.census_dependents.present? %>
-          <% url = dependent_details_people_path(person_id: @person.id, organization_id: organization.id) %>
-        <% else %>
-          <% url = plan_details_people_path(person_id: @person.id, organization_id: organization.id) %>
-        <% end %>
-        
-        <input type="hidden" data-url="<%= url %>" class="badge">
-        <!-- <span id="badge" data-url="<%= url %>"  class="badge" style="cursor:pointer"><i></i></span> -->
+        <input type="hidden" id="organization_id" name="organization_id" value="<%= organization.id %>">
+        <input type="hidden" id="hired_on" name="hired_on" value="<%= employee.census_employee.hired_on %>">
 			</div>
 		  <div class="col-md-3 col-sm-2 col-xs-12 no-pd text-right">
 			  <p>Not your employer? <a href="#"><u>Click Here</u></a></p>
@@ -44,8 +38,15 @@ $(".badge").on('click',function(){
   // $('.search_continue').show();
 });
 
-$('.search_continue').on('click', function() {
-  $('.search_continue').attr("href",$('.badge').first().attr("data-url"));
+$('.search_continue').on('click', function(e) {
+  $.ajax({
+      type: "POST",
+      data: $('#new_person').serialize(),
+      url: "/people/link_employer.js"
+    });
+  e.preventDefault
+  
+  //$('.search_continue').attr("href",$('.badge').first().attr("data-url"));
 });
 /*$('.search_continue').on('click',function(){
       person_id = $(".badge-active").attr("person-id");
