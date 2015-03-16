@@ -1,4 +1,15 @@
 puts "*"*80
+require 'plans_parser'
+
+puts ":::Generating Plans from xml file:::"
+file_contents = File.read(Rails.root.join('public/xml/HIX_DC_Small Group_86052_CFBC_v1.xml'))
+PlansParser.parse(file_contents).each do |plan_parse|
+  plan = Plan.new(name: plan_parse.name.squish, market: "individual", coverage_kind: "dental", carrier_profile_id: "1234", hios_id: plan_parse.standard_component_id.squish, metal_level: plan_parse.metal_level.squish, active_year: plan_parse.active_year.strftime("%Y"))
+  plan.save!
+end
+
+puts ":::End Generating Plans from xml file:::"
+
 puts "::: Generating Sample Plans:::"
 
 plan1 = Plan.new(name: "KP DC Platinum 0/10/Dental/Ped Dental", coverage_kind: "dental", metal_level: "platinum", market: "individual", carrier_profile_id: "1234", active_year: "2015", hios_id: "00009876-02")
