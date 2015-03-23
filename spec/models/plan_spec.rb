@@ -89,6 +89,7 @@ RSpec.describe Plan, type: :model do
     describe ".monthly_premium" do
 
       let(:plan) {FactoryGirl.create(:plan_with_premium_tables)}
+      let(:plan1) {FactoryGirl.create(:plan_with_premium_tables)}
       let(:premium_table) { plan.premium_tables.last }
       let(:year) { plan.active_year }
       let(:hios_id) { plan.hios_id }
@@ -101,10 +102,19 @@ RSpec.describe Plan, type: :model do
       end
 
       context "with correct parameters" do
+        before(:each){ Rails.cache.clear }
 
         it "should return the correct monthly premium" do
-          # expect(plan.premium_tables.first.inspect).to eq ""
-          expect(Plan.monthly_premium(year, hios_id, insured_age, coverage_begin_date)).to eq premium
+          expect(Plan.monthly_premium(year, hios_id, insured_age, coverage_begin_date)).to eq [{age: insured_age, cost: premium}]
+        end
+
+        it "should return the correct monthly premium" do
+          plan1.hios_id = hios_id
+          plan1.premium_tables.create(age: insured_age, cost: premium, start_on: "02/20/2015", end_on: "03/09/2015")
+          plan1.premium_tables.create(age: insured_age+20, cost: premium, start_on: "02/20/2015", end_on: "03/09/2015")
+          plan1.save
+
+          expect(Plan.monthly_premium(plan1.active_year, hios_id, [insured_age, insured_age+20], coverage_begin_date)).to eq [{age: insured_age, cost: premium}, {age: insured_age+20, cost: premium}]
         end
       end
     end

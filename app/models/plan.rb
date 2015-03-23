@@ -29,7 +29,11 @@ class Plan
   field :is_active, type: Boolean, default: true
   field :updated_by, type: String
 
-  embeds_many :premium_tables
+  embeds_many :premium_tables do
+    def get_costs_by_ages(insured_age, start_on, end_on) 
+      where(:age.in => [insured_age].flatten, :start_on.lte => start_on, :end_on.gte => end_on).entries.map{|t| { age: t.age, cost: t.cost } }
+    end
+  end
   accepts_nested_attributes_for :premium_tables
 
   embeds_many :benefits
@@ -130,24 +134,37 @@ class Plan
       #       { "premium_tables.age" => insured_age },
       #       { "premium_tables.start_on" => { "$lte" => coverage_begin_date }}, 
       #       { "premium_tables.end_on" => { "$gte" => coverage_begin_date }}
-      #     ).only("premium_tables.cost").entries
+      #     ).only("premium_tables.cost", "premium_tables.age").entries
       # offset = insured_age - plan_documents.first.premium_tables.first.age
 
-      begin_date = Date.parse(coverage_begin_date)
-      plan_documents = Plan.and({ active_year: plan_year }, { hios_id: hios_id }).entries
-      premium_table = plan_documents.first.premium_tables.detect do |table|
-        (table.age == insured_age) && (begin_date >= table.start_on) && (begin_date <= table.end_on)
+      #begin_date = Date.parse(coverage_begin_date)
+      #plan_documents = Plan.and({ active_year: plan_year }, { hios_id: hios_id }).entries
+      #premium_table = plan_documents.first.premium_tables.detect do |table|
+      #  (table.age == insured_age) && (begin_date >= table.start_on) && (begin_date <= table.end_on)
+      #end
+      #plan_premium = premium_table.cost
+
+      #Rails.cache.fetch("#{hios_id.to_s}_#{plan_year.to_i.to_s}_#{coverage_begin_date.to_s.to_i}_#{[insured_age].flatten.join('-')}", expires_in: 1.day) do
+      #  plan_premiums = Plan.and(
+      #    { active_year: plan_year }, { hios_id: hios_id }
+      #  ).map do |plan|
+      #    {plan_id: plan.id, tables: plan.premium_tables.get_costs_by_ages(insured_age, coverage_begin_date, coverage_begin_date) }
+      #  end.flatten
+      #end
+
+      Rails.cache.fetch("#{hios_id.to_s}_#{plan_year.to_i.to_s}_#{coverage_begin_date.to_s.to_i}_#{[insured_age].flatten.join('-')}", expires_in: 1.day) do
+        plan_premiums = Plan.and(
+          { active_year: plan_year }, { hios_id: hios_id }
+        ).first
+        .premium_tables.where(:age.in => [insured_age].flatten, :start_on.lte => coverage_begin_date, :end_on.gte => coverage_begin_date)
+        .entries.map{|t| { age: t.age, cost: t.cost } }
       end
-      plan_premium = premium_table.cost
     end
 
 
     def find_by_carrier_profile(carrier_profile)
       raise ArgumentError("expected CarrierProfile") unless carrier_profile is_a? CarrierProfile
       where(carrier_profile_id: carrier_profile._id)
-    end
-
-  end
-
-
+    end 
+  end 
 end
