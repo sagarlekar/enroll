@@ -151,8 +151,9 @@ class Plan
       #    {plan_id: plan.id, tables: plan.premium_tables.get_costs_by_ages(insured_age, coverage_begin_date, coverage_begin_date) }
       #  end.flatten
       #end
+      cache_key = [hios_id, plan_year, coverage_begin_date, [insured_age].flatten.join('-')]
 
-      Rails.cache.fetch("#{hios_id.to_s}_#{plan_year.to_i.to_s}_#{coverage_begin_date.to_s.to_i}_#{[insured_age].flatten.join('-')}", expires_in: 1.day) do
+      Rails.cache.fetch( cache_key, expires_in: 1.day) do
         plan_premiums = Plan.and(
           { active_year: plan_year }, { hios_id: hios_id }
         ).first
