@@ -154,9 +154,7 @@ class Plan
       cache_key = [hios_id, plan_year, coverage_begin_date, [insured_age].flatten.join('-')]
 
       Rails.cache.fetch( cache_key, expires_in: 1.day) do
-        plan_premiums = Plan.and(
-          { active_year: plan_year }, { hios_id: hios_id }
-        ).first
+        plan_premiums = Plan.find_by(active_year: plan_year, hios_id: hios_id)
         .premium_tables.where(:age.in => [insured_age].flatten, :start_on.lte => coverage_begin_date, :end_on.gte => coverage_begin_date)
         .entries.map{|t| { age: t.age, cost: t.cost } }
       end
