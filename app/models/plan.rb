@@ -144,22 +144,45 @@ class Plan
       #end
       #plan_premium = premium_table.cost
 
-      #Rails.cache.fetch("#{hios_id.to_s}_#{plan_year.to_i.to_s}_#{coverage_begin_date.to_s.to_i}_#{[insured_age].flatten.join('-')}", expires_in: 1.day) do
-      #  plan_premiums = Plan.and(
-      #    { active_year: plan_year }, { hios_id: hios_id }
-      #  ).map do |plan|
-      #    {plan_id: plan.id, tables: plan.premium_tables.get_costs_by_ages(insured_age, coverage_begin_date, coverage_begin_date) }
-      #  end.flatten
-      #end
-      cache_key = [hios_id, plan_year, coverage_begin_date, [insured_age].flatten.join('-')]
+      start = Time.now
+      result = []
+      if plan_year.to_s == coverage_begin_date.to_date.year.to_s
+        [insured_age].flatten.each do |age|
+          cache_key = [hios_id, plan_year, age].join('-')
+          cost = Rails.cache.fetch(cache_key) do
+            plan_premiums = Plan.find_by(active_year: plan_year, hios_id: hios_id)
+            .premium_tables.where(:age => age, :start_on.lte => coverage_begin_date, :end_on.gte => coverage_begin_date)
+            .entries.first.cost
+          end
 
-      Rails.cache.fetch( cache_key, expires_in: 1.day) do
-        plan_premiums = Plan.find_by(active_year: plan_year, hios_id: hios_id)
-        .premium_tables.where(:age.in => [insured_age].flatten, :start_on.lte => coverage_begin_date, :end_on.gte => coverage_begin_date)
-        .entries.map{|t| { age: t.age, cost: t.cost } }
+          result << { age: age, cost: cost }
+        end
       end
+      puts Time.now - start
+      result
     end
 
+    def redis_fetch(plan_year, hios_id, insured_age, coverage_begin_date)
+      start = Time.now
+      result = []
+      if plan_year.to_s == coverage_begin_date.to_date.year.to_s
+        [insured_age].flatten.each do |age|
+          cache_key = [hios_id, plan_year, age].join('-')
+          cost = $redis.get(cache_key)
+
+          result << { age: age, cost: cost }
+        end
+      end
+      puts Time.now - start
+      result
+    end
+
+    def reload_premium_cache
+      self.premium_tables.each do |premium|
+        cache_key = [hios_id, active_year, premium.age].join('-')
+        Rails.cache.write(cache_key, premium.cost)
+      end
+    end
 
     def find_by_carrier_profile(carrier_profile)
       raise ArgumentError("expected CarrierProfile") unless carrier_profile is_a? CarrierProfile

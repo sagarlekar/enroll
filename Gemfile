@@ -60,6 +60,8 @@ gem 'haml'
 gem 'devise', '~> 3.4.1'
 # gem 'devise_ldap_authenticatable', '~> 0.8.1'
 gem 'cancancan', '~> 1.9.2'
+gem 'redis-store', '~> 1.1.4'
+gem 'redis-rails'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
