@@ -1,10 +1,12 @@
+require 'acapi/publishers/family'
 class Family
   include Mongoid::Document
   include Mongoid::Timestamps
   # include Mongoid::Attributes::Dynamic
   include Mongoid::Versioning
   # include Mongoid::Paranoia
-  include AASM
+  include AASM 
+  include Acapi::Publishers::Family
 
 
   KINDS = %W[unassisted_qhp insurance_assisted_qhp employer_sponsored streamlined_medicaid emergency_medicaid hcr_chip]

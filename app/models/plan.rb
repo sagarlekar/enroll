@@ -1,12 +1,15 @@
+require 'acapi/publishers/base'
 class Plan
   include Mongoid::Document
   include Mongoid::Timestamps
 #  include Mongoid::Versioning
+  include Acapi::Publishers::Base
 
   COVERAGE_KINDS = %w[health dental]
   METAL_LEVEL_KINDS = %w[bronze silver gold platinum catastrophic dental]
-  MARKET_KINDS = %w(shop individual)
+  MARKET_KINDS = %w(shop individual) 
 
+  attach_publisher :enroll, "Family" 
 
   field :hbx_id, type: Integer
   field :active_year, type: Integer

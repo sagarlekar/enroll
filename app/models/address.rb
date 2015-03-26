@@ -89,4 +89,10 @@ class Address
   def attribute_matches?(attribute, other)
     self[attribute].to_s.downcase == other[attribute].to_s.downcase
   end
+
+  def self.subscribe
+    ActiveSupport::Notifications.subscribe do |name, start, finish, id, payload|
+      Rails.logger.debug(["notification:", name, start, finish, id, payload].join(" "))
+    end
+  end
 end

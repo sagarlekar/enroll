@@ -50,8 +50,8 @@ gem "mongoid-enum", '~> 0.2.0'
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
-gem 'acapi', git: "git://github.com/dchbx/acapi.git"
-# gem 'acapi', path: "../acapi"
+# gem 'acapi', git: "git://github.com/dchbx/acapi.git"
+gem 'acapi', path: "../acapi"
 
 gem 'aasm', '~> 4.0.7'
 gem 'haml'
@@ -71,7 +71,6 @@ group :development, :test do
   gem 'web-console', '~> 2.0'
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
-  gem 'spring'
 
 # Use Capistrano for deployment
   gem 'capistrano-rails', '~> 1.1.2'
