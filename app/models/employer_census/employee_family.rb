@@ -1,7 +1,12 @@
+require 'acapi/publishers/logger'
+require 'acapi/publishers/edi_event'
+require 'acapi/local_amqp_subscriber'
 class EmployerCensus::EmployeeFamily
 
   include Mongoid::Document
   include Mongoid::Timestamps
+  include Acapi::Publishers::Logger
+  include Acapi::Publishers::EdiEvent
 
   embedded_in :employer_profile
 
@@ -118,13 +123,19 @@ class EmployerCensus::EmployeeFamily
       message =  "Error while terminating: #{census_employee.first_name} #{census_employee.last_name} (id=#{id}). "
       message << "Termination date: #{last_day_of_work.end_of_month} exceeds maximum period "
       message << "(#{HbxProfile::ShopRetroactiveTerminationMaximumInDays} days) for a retroactive termination"
+      logger(message)
       Rails.logger.error { message }
       raise HbxPolicyError, message
     end
 
     self.census_employee.terminated_on = coverage_term_date
     self.terminated = true
+    edi_event("terminated successful with: #{census_employee.first_name} #{census_employee.last_name} (id=#{id}). ")
     self
+  end
+
+  def check_terminate
+    logger("test terminate")
   end
 
   def is_terminated?

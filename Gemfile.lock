@@ -3,6 +3,7 @@ PATH
   specs:
     acapi (0.0.1)
       activesupport (~> 4.2.0)
+      bunny (~> 1.7.0)
 
 GEM
   remote: https://rubygems.org/
@@ -43,6 +44,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
+    amq-protocol (1.9.2)
     animate-rails (1.0.7)
       rails
     arel (6.0.0)
@@ -51,6 +53,8 @@ GEM
       debug_inspector (>= 0.0.1)
     bson (2.3.0)
     builder (3.2.2)
+    bunny (1.7.0)
+      amq-protocol (>= 1.9.2)
     byebug (3.5.1)
       columnize (~> 0.8)
       debugger-linecache (~> 1.2)

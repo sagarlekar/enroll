@@ -172,6 +172,12 @@ describe EmployerCensus::EmployeeFamily, 'instance methods' do
       it "should return terminated employee" do
         expect(census_family.terminate(valid_termination_date).is_terminated?).to be_true
       end
+    end 
+  end
+
+  describe "#check_terminate" do 
+    it "subscribe the right message" do
+      census_family.check_terminate 
     end
   end
 

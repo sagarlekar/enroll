@@ -1,4 +1,4 @@
-require 'acapi/publishers/family'
+require 'acapi/publishers/logger'
 class Family
   include Mongoid::Document
   include Mongoid::Timestamps
@@ -6,7 +6,18 @@ class Family
   include Mongoid::Versioning
   # include Mongoid::Paranoia
   include AASM 
-  include Acapi::Publishers::Family
+  include Acapi::Publishers::Logger
+
+  def item_changed
+    puts "item changed called!"
+  end
+
+  def family_changed
+    puts "family changed called!"
+
+    logger("hello, family")
+  end
+
 
 
   KINDS = %W[unassisted_qhp insurance_assisted_qhp employer_sponsored streamlined_medicaid emergency_medicaid hcr_chip]
