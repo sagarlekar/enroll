@@ -36,12 +36,6 @@ class Plan
   end
   accepts_nested_attributes_for :premium_tables
 
-  embeds_many :benefits
-  accepts_nested_attributes_for :benefits
-
-  embeds_many :plan_benefits
-  accepts_nested_attributes_for :plan_benefits
-  
   index({ hbx_id: 1 })
   index({ coverage_kind: 1 })
   index({ metal_level: 1 })
@@ -77,11 +71,31 @@ class Plan
      message: "%{value} is not a valid market" 
    }
              
-  validates :active_year,
-    length: { minimum: 4, maximum: 4, message: "active year must be four digits" },
-    numericality: { greater_than: 2013, less_than: 2020, message: "active year must fall between 2014..2019" },
-    allow_blank: false
+  validates_inclusion_of :active_year, 
+    in: 2014..(Date.today.year + 3), 
+    message: "%{value} is an invalid active year"
   
+  ## Scopes
+  # Metal level
+  scope :platinum_level,      ->{ where(metal_level: "platinum") }
+  scope :gold_level,          ->{ where(metal_level: "gold") }
+  scope :silver_level,        ->{ where(metal_level: "silver") }
+  scope :bronze_level,        ->{ where(metal_level: "bronze") }
+  scope :catastrophic_level,  ->{ where(metal_level: "catastrophic") }
+
+  # Marketplace
+  scope :shop_market,          ->{ where(market: "shop") }
+  scope :individual_market,    ->{ where(market: "individual") }
+
+  # Carriers: use class method (which may be chained)
+  def self.find_by_carrier_profile(carrier_profile)
+    where(carrier_profile_id: carrier_profile._id)
+  end
+
+  # scope :named, ->(name){ where(name: name) }
+  # where(carrier_profile_id: carrier_profile._id)
+
+
   def metal_level=(new_metal_level)
     write_attribute(:metal_level, new_metal_level.to_s.downcase)
   end
@@ -127,6 +141,14 @@ class Plan
     given_age
   end
 
+  def reload_premium_cache
+    self.premium_tables.each do |premium|
+      cache_key = [hios_id, active_year, premium.age].join('-')
+      #Rails.cache.write(cache_key, premium.cost)
+      $redis.set(cache_key, premium.cost)
+    end
+  end
+
   class << self
     def monthly_premium(plan_year, hios_id, insured_age, coverage_begin_date)
       # plan_premium = Plan.and(
@@ -161,6 +183,15 @@ class Plan
       puts Time.now - start
       result
     end
+    
+    def redis_monthly_premium(plan_year, hios_id, insured_age, coverage_begin_date)
+      result = []
+      if plan_year.to_s == coverage_begin_date.to_date.year.to_s
+        [insured_age].flatten.each do |age|
+          cache_key = [hios_id, plan_year, age].join('-')
+          cost = $redis.get(cache_key)
+          result << { age: age, cost: cost }
+        end
 
     def redis_fetch(plan_year, hios_id, insured_age, coverage_begin_date)
       start = Time.now
