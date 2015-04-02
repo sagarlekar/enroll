@@ -134,7 +134,6 @@ class Plan
     find(renewal_plan_id) unless renewal_plan_id.blank?
   end
 
-
   def bound_age(given_age)
     return minimum_age if given_age < minimum_age
     return maximum_age if given_age > maximum_age
@@ -144,80 +143,42 @@ class Plan
   def reload_premium_cache
     self.premium_tables.each do |premium|
       cache_key = [hios_id, active_year, premium.age].join('-')
-      #Rails.cache.write(cache_key, premium.cost)
       $redis.set(cache_key, premium.cost)
     end
   end
 
   class << self
     def monthly_premium(plan_year, hios_id, insured_age, coverage_begin_date)
-      # plan_premium = Plan.and(
-      #       { active_year: plan_year }, { hios_id: hios_id }, 
-      #       { "premium_tables.age" => insured_age },
-      #       { "premium_tables.start_on" => { "$lte" => coverage_begin_date }}, 
-      #       { "premium_tables.end_on" => { "$gte" => coverage_begin_date }}
-      #     ).only("premium_tables.cost", "premium_tables.age").entries
-      # offset = insured_age - plan_documents.first.premium_tables.first.age
-
-      #begin_date = Date.parse(coverage_begin_date)
-      #plan_documents = Plan.and({ active_year: plan_year }, { hios_id: hios_id }).entries
-      #premium_table = plan_documents.first.premium_tables.detect do |table|
-      #  (table.age == insured_age) && (begin_date >= table.start_on) && (begin_date <= table.end_on)
-      #end
-      #plan_premium = premium_table.cost
-
-      start = Time.now
       result = []
       if plan_year.to_s == coverage_begin_date.to_date.year.to_s
         [insured_age].flatten.each do |age|
-          cache_key = [hios_id, plan_year, age].join('-')
-          cost = Rails.cache.fetch(cache_key) do
-            plan_premiums = Plan.find_by(active_year: plan_year, hios_id: hios_id)
-            .premium_tables.where(:age => age, :start_on.lte => coverage_begin_date, :end_on.gte => coverage_begin_date)
-            .entries.first.cost
-          end
-
+          cost = Plan.find_by(active_year: plan_year, hios_id: hios_id)
+          .premium_tables.where(:age => age, :start_on.lte => coverage_begin_date, :end_on.gte => coverage_begin_date)
+          .entries.first.cost
           result << { age: age, cost: cost }
         end
       end
-      puts Time.now - start
       result
     end
-    
+
     def redis_monthly_premium(plan_year, hios_id, insured_age, coverage_begin_date)
       result = []
       if plan_year.to_s == coverage_begin_date.to_date.year.to_s
         [insured_age].flatten.each do |age|
           cache_key = [hios_id, plan_year, age].join('-')
           cost = $redis.get(cache_key)
-          result << { age: age, cost: cost }
-        end
-
-    def redis_fetch(plan_year, hios_id, insured_age, coverage_begin_date)
-      start = Time.now
-      result = []
-      if plan_year.to_s == coverage_begin_date.to_date.year.to_s
-        [insured_age].flatten.each do |age|
-          cache_key = [hios_id, plan_year, age].join('-')
-          cost = $redis.get(cache_key)
-
-          result << { age: age, cost: cost }
+          result << { age: age, cost: cost.try(:to_f) }
         end
       end
-      puts Time.now - start
       result
+    rescue => e
+      Rails.logger.error { e.message }
+      []
     end
 
-    def reload_premium_cache
-      self.premium_tables.each do |premium|
-        cache_key = [hios_id, active_year, premium.age].join('-')
-        Rails.cache.write(cache_key, premium.cost)
-      end
-    end
-
-    def find_by_carrier_profile(carrier_profile)
-      raise ArgumentError("expected CarrierProfile") unless carrier_profile is_a? CarrierProfile
-      where(carrier_profile_id: carrier_profile._id)
-    end 
+    #def find_by_carrier_profile(carrier_profile)
+    #  raise ArgumentError("expected CarrierProfile") unless carrier_profile is_a? CarrierProfile
+    #  where(carrier_profile_id: carrier_profile._id)
+    #end 
   end 
 end
