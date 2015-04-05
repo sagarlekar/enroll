@@ -11,35 +11,29 @@ class PeopleController < ApplicationController
 
   # Uses identifying information to return single pre-existing Person instance if already in DB
   def match_person
-    
+    matched = false
     @person = Person.new(person_params)
     employee_family = EmployerProfile.find_census_families_by_person(@person).first
-    # matched_person = Person.match_by_id_info(@person)
 
     if employee_family.blank?
-      # Preexisting Person not found, create new instance and return to complete form entry
-      respond_to do |format|
-        format.json { render json: { person: @person, matched: false}, status: :ok, location: @person }
-      end
+      # Preexisting Person not found, return new instance to complete form entry
+      # matched = false
+      # respond_to do |format|
+      #   format.json { render json: { person: @person, matched: false}, status: :ok, location: @person }
+      # end
+      build_nested_models
     elsif employee_family.is_linked?
+      # employee found, and already linked to family
       @employee_role = employee_family.linked_employee_role
-
-      respond_to do |format|
-        # @person = employee_family.census_employee
-        # build_nested_models
-        format.json { render json: { person: @person, matched: true}, status: :ok, location: @person, matched: true }
-      end
+      @person = @employee_role.person
+      matched = true
+      # respond_to do |format|
+      #   # @person = employee_family.census_employee
+      #   # build_nested_models
+      #   format.json { render json: { person: @person, matched: true}, status: :ok, location: @person, matched: true }
+      # end
     else
-      
-      # Matched Person, autofill form with found attributes
-      
-      # if employee_family.blank?
-      #   # Preexisting Person not found, create new instance and return to complete form entry
-      #   respond_to do |format|
-      #     format.json { render json: { person: @person, matched: false}, status: :ok, location: @person }
-      #   end
-      # else
-
+      # person and census employee found, but need to create employee role
       enroll_parms = {}
       enroll_parms[:user] = current_user
       enroll_parms[:employer_profile] = employee_family.employer_profile
@@ -53,20 +47,18 @@ class PeopleController < ApplicationController
       enroll_parms[:hired_on] = employee_family.census_employee.hired_on
 
       @employee_role, @family = EnrollmentFactory.add_employee_role(enroll_parms)
-      # add_employee_role
-
-      respond_to do |format|
-        # @person = employee_family.census_employee
-        # build_nested_models
-        format.json { render json: { person: @person, matched: true}, status: :ok, location: @person, matched: true }
-      end
+      @person = @employee_role.person
+    end
+    respond_to do |format|
+      # build_nested_models
+      format.json { render json: { person: @person, matched: matched}, status: :ok, location: @person, matched: matched }
     end
   end
 
   # Uses identifying information to return one or more for matches in employer census
   def match_employer
   end
-  
+
   def person_lading
     @person = Person.find(params[:person_id])
     @employer = Organization.find(params[:organization_id])
@@ -74,19 +66,19 @@ class PeopleController < ApplicationController
     @employee = employee_family.census_employee
     build_nested_models
   end
-  
+
   def link_employer
   end
-  
+
   def get_employer
     @person = Person.find(params[:id])
     @employer_profile = EmployerProfile.find_all_by_person(@person).first
-    
+
     respond_to do |format|
       format.js {}
     end
   end
-  
+
   def person_confirm
     @person = Person.find(params[:person_id])
     if params[:employer_id].to_i != 0
@@ -102,11 +94,11 @@ class PeopleController < ApplicationController
       format.js {}
     end
   end
-  
+
   def plan_details
     #add_employee_role
   end
-  
+
   def dependent_details
     add_employee_role
     @employer_profile = @employee_role.employer_profile
@@ -117,10 +109,10 @@ class PeopleController < ApplicationController
     # @employee = employee_family.census_employee
     # build_nested_models
   end
-  
+
   def add_employee_role
     @person = Person.find(params[:person_id])
-    @employer_profile = Organization.find(params[:organization_id]).employer_profile    
+    @employer_profile = Organization.find(params[:organization_id]).employer_profile
     employer_census_family = @employer_profile.linkable_employee_family_by_person(@person)
 
     #calling add_employee_role when linkable employee family present
@@ -141,9 +133,9 @@ class PeopleController < ApplicationController
     else
       @employee_role = @person.employee_roles.first
     end
-    
+
   end
-  
+
   def add_dependents
     @person = Person.find(params[:person_id])
     @employer = Organization.find(params[:organization_id])
@@ -151,7 +143,7 @@ class PeopleController < ApplicationController
     @employee = employee_family.census_employee
     @dependent = EmployerCensus::Dependent.new
   end
-  
+
   def save_dependents
     new_dependent = EmployerCensus::Dependent.new(dependent_params)
     @person = Person.find(params[:person])
@@ -164,22 +156,22 @@ class PeopleController < ApplicationController
         if @dependent.save
           format.js { flash.now[:notice] = "Family Member Added." }
         else
-          format.js { flash.now[:error_msg] = "Error in Family Member Addition." } 
+          format.js { flash.now[:error_msg] = "Error in Family Member Addition." }
         end
       end
     else
       if @dependent.update_attributes(params[:employer_census_dependent])
         respond_to do |format|
-          format.js { flash.now[:notice] = "Family Member Updated." } 
+          format.js { flash.now[:notice] = "Family Member Updated." }
         end
       else
         respond_to do |format|
-          format.js { flash.now[:error_msg] = "Error in Family Member Edit." } 
+          format.js { flash.now[:error_msg] = "Error in Family Member Edit." }
         end
       end
     end
   end
-  
+
   def remove_dependents
     @person = Person.find(params[:person_id])
     @employer = Organization.find(params[:organization_id])
@@ -192,10 +184,10 @@ class PeopleController < ApplicationController
       @family_member_id = params[:id]
     end
     respond_to do |format|
-      format.js { flash.now[:notice] = "Family Member Removed" } 
+      format.js { flash.now[:notice] = "Family Member Removed" }
     end
   end
-  
+
   def person_landing
     @person = Person.find(params[:person_id])
     if params[:organization_id].to_i != 0
@@ -251,7 +243,7 @@ class PeopleController < ApplicationController
     @person = Person.find(params[:id])
     build_nested_models
   end
-  
+
    def show
     @person = Person.find(params[:id])
     @employer_profile= EmployerProfile.find_all_by_person(@person).first
@@ -269,53 +261,53 @@ class PeopleController < ApplicationController
     #   end
     # end
   end
-  
+
   def select_plan
-    
+
   end
-  
+
 
 private
   def build_nested_models
-    
+
     ["home","mobile","work","fax"].each do |kind|
        @person.phones.build(kind: kind) if @person.phones.select{|phone| phone.kind == kind}.blank?
     end
-   
+
     Address::KINDS.each do |kind|
       @person.addresses.build(kind: kind) if @person.addresses.select{|address| address.kind == kind}.blank?
     end
-    
+
     ["home","work"].each do |kind|
        @person.emails.build(kind: kind) if @person.emails.select{|email| email.kind == kind}.blank?
     end
   end
-  
+
   def santize_person_params
     person_params["addresses_attributes"].each do |key, address|
       if address["city"].blank? && address["zip"].blank? && address["address_1"].blank?
         person_params["addresses_attributes"].delete("#{key}")
       end
     end
-    
+
     person_params["phones_attributes"].each do |key, phone|
-      if phone["full_phone_number"].blank? 
+      if phone["full_phone_number"].blank?
         person_params["phones_attributes"].delete("#{key}")
       end
     end
-   
+
     person_params["emails_attributes"].each do |key, phone|
-      if phone["address"].blank? 
+      if phone["address"].blank?
         person_params["emails_attributes"].delete("#{key}")
       end
-    end  
+    end
   end
-  
-  
+
+
   def person_params
     params.require(:person).permit!
   end
-  
+
   def dependent_params
     params.require(:employer_census_dependent).permit!
   end
