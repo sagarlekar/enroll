@@ -16,22 +16,15 @@ class PeopleController < ApplicationController
     employee_family = EmployerProfile.find_census_families_by_person(@person).first
 
     if employee_family.blank?
-      # Preexisting Person not found, return new instance to complete form entry
-      # matched = false
-      # respond_to do |format|
-      #   format.json { render json: { person: @person, matched: false}, status: :ok, location: @person }
-      # end
-      build_nested_models
+      # This is a bad case.  We cannot match the user behind the keyboard with
+      # an existing census employee.
+      # Should we display an error here that they cannot register as an employee,
+      # and they should contact their employer?
     elsif employee_family.is_linked?
       # employee found, and already linked to family
       @employee_role = employee_family.linked_employee_role
       @person = @employee_role.person
       matched = true
-      # respond_to do |format|
-      #   # @person = employee_family.census_employee
-      #   # build_nested_models
-      #   format.json { render json: { person: @person, matched: true}, status: :ok, location: @person, matched: true }
-      # end
     else
       # person and census employee found, but need to create employee role
       enroll_parms = {}
@@ -50,7 +43,6 @@ class PeopleController < ApplicationController
       @person = @employee_role.person
     end
     respond_to do |format|
-      # build_nested_models
       format.json { render json: { person: @person, matched: matched}, status: :ok, location: @person, matched: matched }
     end
   end
